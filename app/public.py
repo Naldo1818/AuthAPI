@@ -8,6 +8,7 @@ router = APIRouter(
 
 @router.get("/info")
 async def public_info():
+
     return {
         "message": "Welcome stranger! This info is public."
     }

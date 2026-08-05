@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Header, HTTPException, status
+from fastapi import APIRouter
+from fastapi import Header
+from fastapi import HTTPException
+
 from app.config import supabase
 
 router = APIRouter(
@@ -6,36 +9,80 @@ router = APIRouter(
     tags=["Protected"]
 )
 
+
 @router.get("/profile")
-async def profile(authorization: str = Header(default=None)):
+def profile(authorization: str = Header(default=None)):
+
+    # -----------------------
+    # Step 1
+    # Check header exists
+    # -----------------------
 
     if authorization is None:
+
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=401,
             detail="Access token required"
         )
 
-    parts = authorization.split()
+    # -----------------------
+    # Step 2
+    # Check Bearer prefix
+    # -----------------------
 
-    if len(parts) != 2 or parts[0] != "Bearer":
+    if not authorization.startswith("Bearer "):
+
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=401,
             detail="Invalid authorization header"
         )
 
-    token = parts[1]
+    # -----------------------
+    # Step 3
+    # Remove "Bearer "
+    # -----------------------
+
+    token = authorization.replace("Bearer ", "")
+
+    # -----------------------
+    # Step 4
+    # Verify token with Supabase
+    # -----------------------
 
     try:
+
         response = supabase.auth.get_user(token)
 
-        return {
-            "id": response.user.id,
-            "email": response.user.email,
-            "created_at": response.user.created_at
-        }
-
     except Exception:
+
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=401,
             detail="Invalid or expired token"
         )
+
+    # -----------------------
+    # Step 5
+    # Check user exists
+    # -----------------------
+
+    if response.user is None:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token"
+        )
+
+    # -----------------------
+    # Step 6
+    # Return profile
+    # -----------------------
+
+    return {
+
+        "id": response.user.id,
+
+        "email": response.user.email,
+
+        "created_at": response.user.created_at
+
+    }

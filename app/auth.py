@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from app.models import UserCredentials
 from app.config import supabase
+from app.dependencies import verify_user
 
 router = APIRouter(
     prefix="/auth",
@@ -11,7 +12,6 @@ router = APIRouter(
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def signup(credentials: UserCredentials):
 
-    # Check for empty values
     if not credentials.email.strip() or not credentials.password.strip():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -19,10 +19,11 @@ async def signup(credentials: UserCredentials):
         )
 
     try:
+
         response = supabase.auth.sign_up(
             {
                 "email": credentials.email,
-                "password": credentials.password,
+                "password": credentials.password
             }
         )
 
@@ -32,10 +33,12 @@ async def signup(credentials: UserCredentials):
         }
 
     except Exception as e:
+
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+
 
 @router.post("/login")
 async def login(credentials: UserCredentials):
@@ -47,10 +50,11 @@ async def login(credentials: UserCredentials):
         )
 
     try:
+
         response = supabase.auth.sign_in_with_password(
             {
                 "email": credentials.email,
-                "password": credentials.password,
+                "password": credentials.password
             }
         )
 
@@ -62,7 +66,16 @@ async def login(credentials: UserCredentials):
         }
 
     except Exception:
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid login credentials"
         )
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout(user=Depends(verify_user)):
+
+    supabase.auth.sign_out()
+
+    return

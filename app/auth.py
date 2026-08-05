@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, status, Depends
+
 from app.models import UserCredentials
 from app.config import supabase
-from app.dependencies import verify_user
+from app.dependencies import get_current_user
 
 router = APIRouter(
     prefix="/auth",
@@ -74,8 +75,11 @@ async def login(credentials: UserCredentials):
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(user=Depends(verify_user)):
-
-    supabase.auth.sign_out()
-
+async def logout(user=Depends(get_current_user)):
+    """Logout user - requires valid JWT token"""
+    try:
+        supabase.auth.sign_out()
+    except Exception as e:
+        # Token already invalid or doesn't matter on logout
+        pass
     return

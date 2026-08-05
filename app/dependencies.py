@@ -1,31 +1,40 @@
-from fastapi import Header, HTTPException, status
+from fastapi import Header, HTTPException
+
 from app.config import supabase
 
 
-def verify_user(authorization: str = Header(default=None)):
+def get_current_user(authorization: str = Header(default=None)):
 
+    # Check Authorization header exists
     if authorization is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=401,
             detail="Access token required"
         )
 
-    parts = authorization.split()
-
-    if len(parts) != 2 or parts[0] != "Bearer":
+    # Check Bearer prefix
+    if not authorization.startswith("Bearer "):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=401,
             detail="Invalid authorization header"
         )
 
-    token = parts[1]
+    # Extract token
+    token = authorization.replace("Bearer ", "")
 
     try:
         response = supabase.auth.get_user(token)
-        return response.user
 
     except Exception:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=401,
             detail="Invalid or expired token"
         )
+
+    if response.user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token"
+        )
+
+    return response.user

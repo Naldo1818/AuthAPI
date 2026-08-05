@@ -247,7 +247,9 @@ If the token is invalid or expired
 
 # 📷 Swagger Documentation
 
-![Swagger UI](screenshots/swagger.png)
+
+<img width="1362" height="724" alt="Swagger " src="https://github.com/user-attachments/assets/f34ef327-57da-45a6-a912-44a6af395910" />
+
 
 The screenshot should show:
 
@@ -286,8 +288,6 @@ The screenshot should show:
 # 👨‍💻 Author
 
 **Ronaldo Jansen**
-<img width="1362" height="724" alt="Swagger " src="https://github.com/user-attachments/assets/f34ef327-57da-45a6-a912-44a6af395910" />
-
 GitHub: https://github.com/Naldo1818
 
 LinkedIn: www.linkedin.com/in/ronaldo-jansen-0b0018350

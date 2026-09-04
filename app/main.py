@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.auth import router as auth_router
 from app.public import router as public_router
 from app.protected import router as protected_router
+from app.ai import router as ai_router
 
 app = FastAPI(
     title="Authentication API",
@@ -12,7 +13,7 @@ app = FastAPI(
 app.include_router(auth_router)
 app.include_router(public_router)
 app.include_router(protected_router)
-
+app.include_router(ai_router)
 
 @app.get("/")
 def home():
